@@ -1,0 +1,6 @@
+apache-airflow==2.9.2
+apache-airflow-providers-postgres==5.11.2
+apache-airflow-providers-celery==3.7.2
+
+psycopg2-binary==2.9.6
+pandas==2.2.2
