@@ -4,3 +4,4 @@ apache-airflow-providers-celery==3.7.2
 
 psycopg2-binary==2.9.6
 pandas==2.2.2
+python-dotenv==1.0.1

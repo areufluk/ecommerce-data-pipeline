@@ -3,6 +3,8 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
+from scripts.generate_order import create_or_update_order
+
 
 default_args = {
     'owner': 'Chanayut',
@@ -21,9 +23,10 @@ dag = DAG(
     default_args=default_args,
 )
 
-# task_a = PythonOperator(
-#     task_id='first_task',
-#     python_callable=trigger_with_name,
-#     dag=trigger_dag,
-#     op
-# )
+create_or_update_order_task = PythonOperator(
+    task_id='first_task',
+    python_callable=create_or_update_order,
+    dag=dag
+)
+
+create_or_update_order_task
