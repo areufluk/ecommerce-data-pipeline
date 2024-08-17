@@ -53,7 +53,7 @@ def create_or_update_order(start_date: str = None, end_date: str = None):
     MAX_ORDER_AMOUNT = 50
 
     if not start_date:
-        start_date = datetime.today().date()
+        start_date = datetime.today().date() - timedelta(days=1)
 
     if not end_date:
         end_date = start_date
