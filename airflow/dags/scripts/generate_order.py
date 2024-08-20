@@ -8,11 +8,9 @@ import pandas as pd
 import numpy as np
 from urllib.parse import urlparse
 from datetime import timedelta, datetime
-from dotenv import load_dotenv
 
 
 def postgresql_connection():
-    load_dotenv()
     connection_string = os.getenv('SALES_DB')
     connection_parse = urlparse(connection_string)
     connection = psycopg2.connect(
