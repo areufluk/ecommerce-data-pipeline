@@ -9,12 +9,9 @@ ENV PATH=$SPARK_HOME/bin:$PATH
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
-    wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install additional Python libraries
+USER 1001
+
 COPY ./requirements /tmp/requirements
 RUN pip install --no-cache-dir -r /tmp/requirements/base.txt
-
-# Download the PostgreSQL JDBC driver
-RUN wget -P $SPARK_HOME/jars https://jdbc.postgresql.org/download/postgresql-42.2.18.jar
