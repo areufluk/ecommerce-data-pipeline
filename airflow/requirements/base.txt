@@ -1,7 +1,7 @@
-apache-airflow==2.9.2
-apache-airflow-providers-postgres==5.11.2
-apache-airflow-providers-celery==3.7.2
+apache-airflow==2.7.3
+apache-airflow-providers-postgres==5.11.3
+apache-airflow-providers-celery==3.7.3
+apache-airflow-providers-apache-spark==4.9.0
 
-psycopg2-binary==2.9.6
+psycopg2-binary==2.9.9
 pandas==2.2.2
-python-dotenv==1.0.1
