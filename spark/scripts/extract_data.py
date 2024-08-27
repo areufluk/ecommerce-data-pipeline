@@ -30,7 +30,7 @@ pg_properties = {
 order_date = datetime.today().date() - timedelta(days=1)
 query = '''(
     SELECT *
-    FROM public.order_data
+    FROM public.orders
     WHERE order_datetime::DATE = \'{order_date}\'
     ) tmp_table
 '''.format(
