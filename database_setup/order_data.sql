@@ -1,3 +1,10 @@
+-- Create a new database
+CREATE DATABASE "sales-db";
+
+-- Connect to created database
+\c sales-db;
+
+-- Create new table in sales-db
 DROP TABLE IF EXISTS customers;
 CREATE TABLE customers(
     id SERIAL PRIMARY KEY,
