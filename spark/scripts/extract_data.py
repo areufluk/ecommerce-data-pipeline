@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date
 from datetime import timedelta, datetime
 import json
+import os
 
 
 # Initialize Spark Session
@@ -19,10 +20,15 @@ spark.conf.set("fs.gs.auth.service.account.email", service_account['client_email
 spark.conf.set("fs.gs.auth.service.account.private.key", service_account['private_key'])
 
 # Define PostgreSQL connection properties
-pg_url = "jdbc:postgresql://34.143.159.125:5432/sales-db"
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT')
+SALES_DB = os.getenv('SALES_DB')
+pg_url = f"jdbc:postgresql://{POSTGRES_HOST}:{POSTGRES_PORT}/{SALES_DB}"
 pg_properties = {
-    "user": "opd-airflow",
-    "password": "4H96yEphgtmNO_xZXM4M",
+    "user": POSTGRES_USER,
+    "password": POSTGRES_PASSWORD,
     "driver": "org.postgresql.Driver"
 }
 
