@@ -6,19 +6,16 @@ from psycopg2.extras import execute_values
 import os
 import pandas as pd
 import numpy as np
-from urllib.parse import urlparse
 from datetime import timedelta, datetime
 
 
 def postgresql_connection():
-    connection_string = os.getenv('SALES_DB')
-    connection_parse = urlparse(connection_string)
     connection = psycopg2.connect(
-        user=connection_parse.username,
-        password=connection_parse.password,
-        host=connection_parse.hostname,
-        port=connection_parse.port,
-        database=connection_parse.path[1:]
+        user=os.getenv('POSTGRES_USER'),
+        password=os.getenv('POSTGRES_PASSWORD'),
+        host=os.getenv('POSTGRES_HOST'),
+        port=os.getenv('POSTGRES_PORT'),
+        database=os.getenv('SALES_DB')
     )
     connection.autocommit = True
     cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
