@@ -29,18 +29,50 @@ dag = DAG(
     default_args=default_args,
 )
 
-create_or_update_order_task = PythonOperator(
-    task_id='first_task',
+upsert_order_data_task = PythonOperator(
+    task_id='upsert_order_data',
     python_callable=create_or_update_order,
     dag=dag
 )
 
-spark_job = SparkSubmitOperator(
-    task_id='second_task',
+extract_order_data_job = SparkSubmitOperator(
+    task_id='extract_order_data',
     conn_id='spark_conn',
-    application='/opt/airflow/scripts/extract_data.py',
+    application='/opt/airflow/scripts/extract_order_data.py',
     jars=jar_path,
-    driver_class_path='/opt/airflow/jars/'
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
 )
 
-create_or_update_order_task >> spark_job
+extract_customer_data_job = SparkSubmitOperator(
+    task_id='extract_customer_data',
+    conn_id='spark_conn',
+    application='/opt/airflow/scripts/extract_customer_data.py',
+    jars=jar_path,
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
+)
+
+extract_campaign_data_job = SparkSubmitOperator(
+    task_id='extract_campaign_data',
+    conn_id='spark_conn',
+    application='/opt/airflow/scripts/extract_campaign_data.py',
+    jars=jar_path,
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
+)
+
+extract_product_data_job = SparkSubmitOperator(
+    task_id='extract_product_data',
+    conn_id='spark_conn',
+    application='/opt/airflow/scripts/extract_product_data.py',
+    jars=jar_path,
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
+)
+
+(
+    upsert_order_data_task
+    >> extract_order_data_job
+    >> [extract_customer_data_job, extract_campaign_data_job, extract_product_data_job]
+)

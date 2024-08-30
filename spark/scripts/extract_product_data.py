@@ -1,12 +1,10 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import to_date
-from datetime import timedelta, datetime
 import json
 import os
 
 
 # Initialize Spark Session
-spark = SparkSession.builder.appName('Extract raw data').getOrCreate()
+spark = SparkSession.builder.appName('Extract product data').getOrCreate()
 
 # Read service account keyfile
 f = open ('/opt/airflow/keyfile/keyfile.json', 'r')
@@ -33,23 +31,16 @@ pg_properties = {
 }
 
 # SQL query to extract data
-order_date = datetime.today().date() - timedelta(days=1)
 query = '''(
     SELECT *
-    FROM public.orders
-    WHERE order_datetime::DATE = \'{order_date}\'
+    FROM public.products
     ) tmp_table
-'''.format(
-    order_date=order_date.strftime('%Y-%m-%d')
-)
+'''
 
 # Read data from PostgreSQL into a DataFrame
 df = spark.read.jdbc(url=pg_url, table=query, properties=pg_properties)
 
-# Extract date from order_datetime column
-df = df.withColumn('order_date', to_date(df['order_datetime']))
-
 # Write data from PostgreSQL into a DataFrame
-df.write.mode('overwrite').format('parquet').partitionBy('order_date').save('gs://ecommerce-data-pipeline/raw/order')
+df.write.mode('overwrite').format('parquet').save('gs://ecommerce-data-pipeline/raw/product')
 
 spark.stop()
