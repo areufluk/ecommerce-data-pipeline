@@ -71,8 +71,18 @@ extract_product_data_job = SparkSubmitOperator(
     dag=dag
 )
 
+transform_order_data_job = SparkSubmitOperator(
+    task_id='transform_order_data',
+    conn_id='spark_conn',
+    application='/opt/airflow/scripts/transform_order_data.py',
+    jars=jar_path,
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
+)
+
 (
     upsert_order_data_task
     >> extract_order_data_job
     >> [extract_customer_data_job, extract_campaign_data_job, extract_product_data_job]
+    >> transform_order_data_job
 )
