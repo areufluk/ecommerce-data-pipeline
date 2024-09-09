@@ -4,12 +4,13 @@ from airflow.utils.dates import days_ago
 
 from scripts.generate_order import create_or_update_order
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+from airflow.models.param import Param
+from datetime import timedelta, datetime
 
 
 # Define .jar file path
 postgres_jar = '/opt/airflow/jars/postgresql-42.7.3.jar'
 gcs_connector_jar = '/opt/airflow/jars/gcs-connector-hadoop2-latest.jar'
-
 jar_path = postgres_jar + ',' + gcs_connector_jar
 
 default_args = {
@@ -27,12 +28,20 @@ dag = DAG(
     catchup=False,
     start_date=days_ago(1),
     default_args=default_args,
+    params={
+        'start_date_param': Param(f"{datetime.today().date() - timedelta(days=1)}", type="string", format="date"),
+        'end_date_param': Param(f"{datetime.today().date() - timedelta(days=1)}", type="string", format="date")
+    }
 )
 
 upsert_order_data_task = PythonOperator(
     task_id='upsert_order_data',
     python_callable=create_or_update_order,
-    dag=dag
+    dag=dag,
+    op_kwargs={
+        'start_date': '{{params.start_date_param}}',
+        'end_date': '{{params.end_date_param}}'
+    }
 )
 
 extract_order_data_job = SparkSubmitOperator(
@@ -41,7 +50,8 @@ extract_order_data_job = SparkSubmitOperator(
     application='/opt/airflow/scripts/extract_order_data.py',
     jars=jar_path,
     driver_class_path='/opt/airflow/jars/',
-    dag=dag
+    dag=dag,
+    application_args=['{{params.start_date_param}}', '{{params.end_date_param}}']
 )
 
 extract_customer_data_job = SparkSubmitOperator(
@@ -80,9 +90,19 @@ transform_order_data_job = SparkSubmitOperator(
     dag=dag
 )
 
+transform_analytic_data_job = SparkSubmitOperator(
+    task_id='transform_analytic_data',
+    conn_id='spark_conn',
+    application='/opt/airflow/scripts/transform_analytic_data.py',
+    jars=jar_path,
+    driver_class_path='/opt/airflow/jars/',
+    dag=dag
+)
+
 (
     upsert_order_data_task
     >> extract_order_data_job
     >> [extract_customer_data_job, extract_campaign_data_job, extract_product_data_job]
     >> transform_order_data_job
+    >> transform_analytic_data_job
 )

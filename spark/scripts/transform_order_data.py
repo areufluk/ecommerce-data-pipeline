@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date, date_format
+from pyspark.sql.functions import sum, count, max, date_format
 from datetime import timedelta, datetime
 import json
 
@@ -19,12 +20,8 @@ spark.conf.set("fs.gs.auth.service.account.email", service_account['client_email
 spark.conf.set("fs.gs.auth.service.account.private.key", service_account['private_key'])
 spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
-# Write data from PostgreSQL into a DataFrame
-# df.write.mode('overwrite').format('parquet').save('gs://ecommerce-data-pipeline/raw/campaign')
-order_date = datetime.today().date() - timedelta(days=1)
-
 # Read order data from GCS
-order_data_path = f'gs://ecommerce-data-pipeline/raw/order/order_date={order_date}/'
+order_data_path = f'gs://ecommerce-data-pipeline/raw/order/'
 df_order = spark.read.parquet(order_data_path)
 
 # Read customer data from GCS
@@ -56,7 +53,7 @@ df_order = df_order \
 df_order = df_order.select(
     'order_id', 'order_datetime', 'order_date', 'order_time',
     'quantity', 'gross_price', 'discount', 'net_price', 
-    'country', 'age', 'job',
+    'customer_id', 'country', 'age', 'job',
     'campaign_type', 'platform',
     'product_name', 'product_category'
 )
