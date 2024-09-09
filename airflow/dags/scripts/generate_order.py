@@ -140,7 +140,6 @@ def create_or_update_order(start_date: str = None, end_date: str = None):
             df_orders = pd.concat([df_orders, df_order], axis=0)
 
     del df_orders['discount_percentage']
-    print(df_orders.head(50))
 
     # Query exists data to check which order should created or updated
     sales_database.execute('''

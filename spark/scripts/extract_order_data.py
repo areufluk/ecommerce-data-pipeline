@@ -3,6 +3,7 @@ from pyspark.sql.functions import to_date
 from datetime import timedelta, datetime
 import json
 import os
+import sys
 
 
 # Initialize Spark Session
@@ -34,14 +35,16 @@ pg_properties = {
 }
 
 # SQL query to extract data
-order_date = datetime.today().date() - timedelta(days=1)
+start_date = datetime.strptime(sys.argv[1], '%Y-%m-%d').date()
+end_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
 query = '''(
     SELECT *
     FROM public.orders
-    WHERE order_datetime::DATE = \'{order_date}\'
+    WHERE order_datetime::DATE BETWEEN \'{start_date}\' AND \'{end_date}\'
     ) tmp_table
 '''.format(
-    order_date=order_date.strftime('%Y-%m-%d')
+    start_date=start_date,
+    end_date=end_date
 )
 
 # Read data from PostgreSQL into a DataFrame
